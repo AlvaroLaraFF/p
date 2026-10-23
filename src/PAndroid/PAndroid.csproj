@@ -55,4 +55,11 @@
     <AndroidAsset Include="..\PUi\fonts\*.ttf" Link="Assets\fonts\%(Filename)%(Extension)" />
     <AndroidAsset Include="..\PUi\images\*.png" Link="Assets\images\%(Filename)%(Extension)" />
   </ItemGroup>
+
+  <!-- A configuration packaged in place of the repository's empty Assets/config.json, e.g. the lists of a household, which stay out of the repository:
+       -p:PAndroidConfig=/path/config.json (the embed-config option of deploy-android.sh). An apk installed from a URL gets no pushed configuration. -->
+  <ItemGroup Condition="'$(PAndroidConfig)' != ''">
+    <AndroidAsset Remove="Assets\config.json" />
+    <AndroidAsset Include="$(PAndroidConfig)" Link="Assets\config.json" />
+  </ItemGroup>
 </Project>

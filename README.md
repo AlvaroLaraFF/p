@@ -198,14 +198,14 @@ Look at *Settings > My Fire TV > About* for the model. Amazon documents **every 
 **2a. With the Downloader app, from a URL.**
 
 1. Install **Downloader** (AFTVnews, free) from the Appstore: search "Downloader" on the Fire TV. Open it once and allow file access when it asks.
-2. Make the apk available: `./deploy-android.sh --build-only` builds it, checks it and writes `dist/P-<version>-universal.apk` (add `--abi armeabi-v7a` for the small Fire TV-only one). This repository and the apk contain keys of the official Ace Stream app: **do not put it where anybody can read it**. The private GitHub repository keeps the latest apk alone on the branch `apk` (one commit, replaced with each version, so the history of the code never carries binaries):
+2. Make the apk available: `./deploy-android.sh --build-only --embed-config my-lists.json` builds it, checks it and writes `dist/P-<version>-universal-my-lists.apk` (add `--abi armeabi-v7a` for the small Fire TV-only one). An apk installed from a URL gets no pushed configuration, so `--embed-config` packages the file (`{"lists": [...]}`, kept out of the repository) as the apk's own `assets/config.json`; without it the app starts with "No hay listas configuradas". This repository and the apk contain keys of the official Ace Stream app: **do not put it where anybody can read it**. The private GitHub repository keeps the latest apk alone on the branch `apk` (one commit, replaced with each version, so the history of the code never carries binaries):
 
    ```
-   t=$(mktemp -d) && cp dist/P-0.3.0-universal.apk "$t/" && git -C "$t" init -q -b apk && git -C "$t" add -A \
+   t=$(mktemp -d) && cp dist/P-0.3.0-universal-my-lists.apk "$t/" && git -C "$t" init -q -b apk && git -C "$t" add -A \
      && git -C "$t" commit -qm "P! 0.3.0 apk" && git -C "$t" push -f git@github.com:<owner>/p.git apk
    ```
 
-3. In Downloader, open *Browser* (menu on the left), go to `github.com` and sign in (once; the browser keeps the session). Then open `https://github.com/<owner>/p/raw/apk/P-0.3.0-universal.apk`: the download starts and, when it ends, select *Install* (Down and Right to reach it), then *Done* (not *Open*) and delete the apk when it offers. The URL field of Downloader's home screen does not carry the browser's session: it gets "not found" for a private repository.
+3. In Downloader, open *Browser* (menu on the left), go to `github.com` and sign in (once; the browser keeps the session). Then open `https://github.com/<owner>/p/raw/apk/P-0.3.0-universal-my-lists.apk`: the download starts and, when it ends, select *Install* (Down and Right to reach it), then *Done* (not *Open*) and delete the apk when it offers. The URL field of Downloader's home screen does not carry the browser's session: it gets "not found" for a private repository.
 4. To find it: hold *Home*, choose *Apps* (it is also under *Settings > Applications > Manage Installed Applications > P! > Launch application*).
 
 **2b. With adb from a PC** (the PC and the Fire TV on the same network; the PC needs the Android *platform-tools*):

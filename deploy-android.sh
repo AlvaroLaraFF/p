@@ -20,7 +20,9 @@
 #   --no-run               install but do not launch
 #   --uninstall            uninstall first (needed if the signing key ever changes)
 #   --build-only           only build and check the apk (no device needed) and copy it to --out
-#   --out FILE             where --build-only puts the apk (default: dist/P-<version>-<abi or universal>.apk)
+#   --out FILE             where --build-only puts the apk (default: dist/P-<version>-<abi or universal>[-<config name>].apk)
+#   --embed-config FILE    package FILE as the apk's own configuration (assets/config.json): an apk installed from a URL (Downloader, a link)
+#                          has no pushed configuration, so the lists go inside; FILE stays out of the repository
 # Variables: ANDROID_HOME (~/Android/Sdk), JAVA_HOME (~/opt/jdk-17), DOTNET_DIR (~/.dotnet), ADB, P_ANDROID_KEYS (the signing key directory, outside the repository)
 set -euo pipefail
 
@@ -35,7 +37,7 @@ PROJ="$HERE/src/PAndroid"
 EXT_DIR="/sdcard/Android/data/$APP_ID/files"
 DEV_CONFIG_NAME="p-config.json"
 CONNECT=""; SERIAL="${ANDROID_SERIAL:-}"; CONFIG=""; KEEP=0; CLEAR=0; PC_IP=""; LOG_PORT=9999; UDP_LOG=0; LISTEN=""; LOGCAT=0
-CONFIGURATION=Release; ABI=""; BUILD=1; RUN=1; UNINSTALL=0; INSTALL=1; BUILD_ONLY=0; APK_OUT=""
+CONFIGURATION=Release; ABI=""; EMBED=""; BUILD=1; RUN=1; UNINSTALL=0; INSTALL=1; BUILD_ONLY=0; APK_OUT=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -56,8 +58,9 @@ while [[ $# -gt 0 ]]; do
     --no-install) INSTALL=0; shift;;
     --build-only) BUILD_ONLY=1; shift;;
     --out) APK_OUT="$2"; shift 2;;
+    --embed-config) EMBED="$2"; shift 2;;
     --uninstall) UNINSTALL=1; shift;;
-    -h|--help) sed -n '2,24p' "$0"; exit 0;;
+    -h|--help) sed -n '2,26p' "$0"; exit 0;;
     *) echo "unknown option: $1 (see --help)"; exit 2;;
   esac
 done
@@ -74,6 +77,12 @@ build_apk() {
     x86_64) RID_ARG=(-p:PAndroidRids=android-x64);;
     *) echo "unsupported ABI: $ABI"; exit 2;;
   esac
+  if [[ -n "$EMBED" ]]; then
+    [[ -f "$EMBED" ]] || { echo "no configuration at $EMBED"; exit 2; }
+    python3 -I -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$EMBED" || { echo "$EMBED is not valid JSON"; exit 2; }
+    RID_ARG+=(-p:PAndroidConfig="$(cd "$(dirname "$EMBED")" && pwd)/$(basename "$EMBED")")
+    echo "   packaging $EMBED as assets/config.json"
+  fi
   if [[ $BUILD -eq 1 ]]; then
     (cd "$PROJ" && dotnet build -c "$CONFIGURATION" ${RID_ARG[@]+"${RID_ARG[@]}"} -p:AndroidSdkDirectory="$ANDROID_HOME" 2>&1 | grep -E "error|Warn|Err|Elapsed|Tiempo|Advertencia|Errores" | grep -v XA0141 | tail -8)
   fi
@@ -90,7 +99,7 @@ if [[ $BUILD_ONLY -eq 1 ]]; then
   echo "== Building ($CONFIGURATION)"
   build_apk
   VERSION="$(sed -n 's:.*<AppVersion>\(.*\)</AppVersion>.*:\1:p' "$HERE/Directory.Build.props" | head -1)"
-  [[ -n "$APK_OUT" ]] || APK_OUT="$HERE/dist/P-$VERSION-${ABI:-universal}.apk"
+  [[ -n "$APK_OUT" ]] || APK_OUT="$HERE/dist/P-$VERSION-${ABI:-universal}${EMBED:+-$(basename "$EMBED" .json)}.apk"
   mkdir -p "$(dirname "$APK_OUT")"
   cp "$APK" "$APK_OUT"
   echo "== Done: $APK_OUT ($(du -h "$APK_OUT" | cut -f1)); install it with adb install -r, or serve it to the Downloader app (see the README)"
