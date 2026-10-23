@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="org.p.app" version="0.3.0" api-version="6" xmlns="http://tizen.org/ns/packages">
+    <profile name="tv" />
+    <ui-application appid="org.p.app" exec="PTizen.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" launch_mode="single">
+        <label>P!</label>
+        <icon>P.png</icon>
+    </ui-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/internet</privilege>
+    </privileges>
+</manifest>

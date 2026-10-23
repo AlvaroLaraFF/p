@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Full screen, no title, dark window background so nothing flashes white before the first frame. -->
+  <style name="PTheme" parent="@android:style/Theme.Material.NoActionBar">
+    <item name="android:windowFullscreen">true</item>
+    <item name="android:windowBackground">@color/p_background</item>
+    <item name="android:colorBackground">@color/p_background</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:navigationBarColor">@android:color/transparent</item>
+    <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    <item name="android:windowContentTransitions">false</item>
+  </style>
+</resources>

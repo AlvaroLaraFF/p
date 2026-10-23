@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Desktop test bench: draws any PUi screen and state to PNG (with fake data or with the real lists) using SkiaSharp 2.88 (the net8.0 build of PUi).
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>PDesktop</RootNamespace>
+    <AssemblyName>pdesk</AssemblyName>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <NoWarn>$(NoWarn);CS0618;CS0612</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.9" />
+    <ProjectReference Include="..\AceEngine\AceEngine.csproj" />
+    <ProjectReference Include="..\AceEngine.Sim\AceEngine.Sim.csproj" />
+    <ProjectReference Include="..\PUi\PUi.csproj" />
+    <ProjectReference Include="..\PUi.Demo\PUi.Demo.csproj" />
+    <ProjectReference Include="..\PUi.Testing\PUi.Testing.csproj" />
+    <None Include="..\PUi\fonts\*.ttf" Link="fonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\PUi\images\*.png" Link="images\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

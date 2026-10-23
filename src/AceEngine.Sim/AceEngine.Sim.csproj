@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Simulation tools (PC only, net8.0): simulated live-stream sender (source side). Not shipped to the TV. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>AceEngine.Sim</RootNamespace>
+    <AssemblyName>AceEngine.Sim</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AceEngine\AceEngine.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- the dark background of P! (the same as the interface's and the TV icon's) -->
+  <color name="ic_launcher_background">#0F151B</color>
+  <color name="p_background">#0F151B</color>
+</resources>

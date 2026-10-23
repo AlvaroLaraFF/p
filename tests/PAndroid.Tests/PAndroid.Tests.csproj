@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Tests of the pure part of the Android shell (key table, device profile, screen and touch arithmetic, decoder gate...). The sources live in src/PAndroid/Pure and use no Android API,
+    so they are LINKED here and run on the PC with .NET 8 (the Android project itself needs .NET 10 and the workload).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>PAndroid.Tests</RootNamespace>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <NoWarn>$(NoWarn);CS0618;CS0612;xUnit2029</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <ProjectReference Include="..\..\src\AceEngine\AceEngine.csproj" />
+    <ProjectReference Include="..\..\src\PUi\PUi.csproj" />
+    <Compile Include="..\..\src\PAndroid\Pure\*.cs" LinkBase="Linked" />
+    <!-- MP2 test vectors: MPEG audio frames and the PCM FFmpeg's decoder makes of them -->
+    <None Include="Data\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

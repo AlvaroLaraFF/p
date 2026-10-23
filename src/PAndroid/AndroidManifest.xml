@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.p.app">
+  <!--
+    minSdk 25 = Fire OS 6 (Media3 itself needs 23). targetSdk 35 and not 36 on purpose: from 36 on the system Back gesture no longer sends KEYCODE_BACK (the app would have to move to
+    OnBackInvokedCallback, and the interface's whole Back handling is key based), large screens ignore the orientation lock and the edge-to-edge opt-out disappears.
+    The warning XA1006 (compiled against API 36, targeting 35) is expected.
+  -->
+  <uses-sdk android:minSdkVersion="25" android:targetSdkVersion="35" />
+
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+  <!-- "Enviar a la tele": while a channel is being sent the engine runs in a foreground service of type mediaPlayback (Android 14 needs the type and its permission), with a notification
+       (Android 13 asks for POST_NOTIFICATIONS: asked once or twice, the sending works without it) and the Wi-Fi and CPU locks that keep it going with the screen off -->
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+  <!-- one apk for TVs (no touch screen, leanback) and phones / tablets (touch): none of these is required -->
+  <!-- Android 11 hides other apps unless they are declared: Google Play services, to know whether the Cast SDK may be used (never on a Fire TV, which has none) -->
+  <queries>
+    <package android:name="com.google.android.gms" />
+  </queries>
+
+  <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+  <uses-feature android:name="android.software.leanback" android:required="false" />
+  <uses-feature android:name="android.hardware.wifi" android:required="false" />
+  <uses-feature android:name="android.hardware.screen.landscape" android:required="false" />
+  <uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
+</manifest>

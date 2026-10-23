@@ -1,0 +1,72 @@
+{
+  "hls_v1.acelive": {
+    "content_id": "c64e9d1deee682436507f32d36273b15ede465d0",
+    "name": "Canal HLS",
+    "type": "hls"
+  },
+  "legacy_tslive.acetorrent": {
+    "content_id": "9f1a6a3e9fb0dc44a61159955e0a9ed3dce1a552"
+  },
+  "legacy_v2.acetorrent": {
+    "content_id": "77f6d9c1e42fe7bd2b8d4a858822551551409dbf"
+  },
+  "legacy_v3.acetorrent": {
+    "content_id": "5c9560a89372baf77bcfe224f36f1f045179fe27"
+  },
+  "legacy_v3_ivsha1md5.acetorrent": {
+    "content_id": "2aac4b7a244f22e219a7e2babcab91cddeb31cae"
+  },
+  "live": {
+    "bitrate": 500000,
+    "infohash": "b925d5d2e1fb3ade2f3dec95e11eb29aef0419af",
+    "name": "Canal de prueba",
+    "piece_length": 262144,
+    "pubkey_hex": "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f60616263"
+  },
+  "live_v1.acelive": {
+    "content_id": "7fcdc8344a11a32c4b6036286e2b85e0bf981b72"
+  },
+  "live_v2.acelive": {
+    "content_id": "957ef9bf6bee7dc8787ea7db9590f906fb7ae108"
+  },
+  "live_v2_ivzero.acelive": {
+    "content_id": "4c9fbe3c27e88f8617845fbdc277c49cf1c3107b"
+  },
+  "multi_v2.acelive": {
+    "content_id": "ba0f32aaa6e129a1477401a4e8fb427d637e9397",
+    "qualities": [
+      {
+        "infohash": "b925d5d2e1fb3ade2f3dec95e11eb29aef0419af",
+        "name": "alta"
+      },
+      {
+        "infohash": "cd7a9f5217f4e18256ca91115f68afb25610fbef",
+        "name": "baja"
+      }
+    ]
+  },
+  "plain.torrent": {
+    "content_id": "a5e49b9f3c9845d553f4208e2cfc310f7218dd7a"
+  },
+  "torrent": {
+    "files": [
+      {
+        "length": 40000,
+        "path": "Carpeta/pelicula.mp4"
+      },
+      {
+        "length": 37,
+        "path": "Carpeta/subs.srt"
+      },
+      {
+        "length": 20000,
+        "path": "extra.mkv"
+      }
+    ],
+    "infohash": "61a1ce5b84a0117157f7b2f53f695f690a9658c6",
+    "name": "Pack de prueba",
+    "piece_count": 4,
+    "piece_length": 16384,
+    "total_length": 60037
+  }
+}

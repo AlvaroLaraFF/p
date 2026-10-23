@@ -1,0 +1,24 @@
+<Project Sdk="Tizen.NET.Sdk/1.1.9">
+  <!--
+    TV app (Samsung, Tizen 5.5, .NET Core 3.0 ARM32): an ElmSharp window with its own Evas GL view where SkiaSharp draws the whole interface (PUi).
+    SkiaSharp.dll 1.60.0.0 and libSkiaSharp.so ship with the TV: this builds against the 1.60.3 package without including it (a bundled SkiaSharp does not load on this TV).
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>tizen60</TargetFramework>
+    <AssemblyName>PTizen</AssemblyName>
+    <RootNamespace>PTizen</RootNamespace>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <Deterministic>true</Deterministic>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CS0618;CS0612</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="1.60.3" ExcludeAssets="runtime;native;build" />
+    <ProjectReference Include="..\AceEngine\AceEngine.csproj" />
+    <ProjectReference Include="..\PUi\PUi.csproj" />
+    <!-- sample data for the interface test mode (uiDemo): fps and look on the TV without the engine -->
+    <ProjectReference Include="..\PUi.Demo\PUi.Demo.csproj" />
+  </ItemGroup>
+</Project>

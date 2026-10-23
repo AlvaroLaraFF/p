@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Draw into the notch area on the short edges (the interface keeps its own safe insets, from ScreenMetrics.SafeInsets). -->
+  <style name="PTheme" parent="@android:style/Theme.Material.NoActionBar">
+    <item name="android:windowFullscreen">true</item>
+    <item name="android:windowBackground">@color/p_background</item>
+    <item name="android:colorBackground">@color/p_background</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:navigationBarColor">@android:color/transparent</item>
+    <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    <item name="android:windowContentTransitions">false</item>
+    <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+  </style>
+</resources>

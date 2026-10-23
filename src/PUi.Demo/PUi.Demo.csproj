@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Sample data and doubles of the app's services (catalog, recents, checker, search, network, scripted playback) with the design's content, and the interface
+    demo mode (AppConfig.UiDemo). Used by the shells to show the interface without the engine (fps and look on the TV), by the desktop test bench and by the tests.
+    netstandard2.0, depends on the engine only (no Skia).
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>PUi.Demo</RootNamespace>
+    <AssemblyName>PUi.Demo</AssemblyName>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AceEngine\AceEngine.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Clear text is only allowed to the engine's own local HTTP server (the player reads http://127.0.0.1:<port>/...). Everything the app does over the network goes through
+  .NET sockets (UseNativeHttpHandler=false), which this policy does not govern; it only governs the Java stack, that is the player's HTTP data source.
+-->
+<network-security-config>
+  <base-config cleartextTrafficPermitted="false" />
+  <domain-config cleartextTrafficPermitted="true">
+    <domain includeSubdomains="false">127.0.0.1</domain>
+    <domain includeSubdomains="false">localhost</domain>
+  </domain-config>
+</network-security-config>

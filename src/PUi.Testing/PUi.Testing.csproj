@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    What the desktop test bench and the UI tests share: the windowless platform (CPU surface, simulated keys, controlled time) and the scenarios of the design's screens.
+    net8.0 only (uses the SkiaSharp 2.88 build of PUi); it is never packaged for a device.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>PUi.Testing</RootNamespace>
+    <AssemblyName>PUi.Testing</AssemblyName>
+    <NoWarn>$(NoWarn);CS0618;CS0612</NoWarn>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AceEngine\AceEngine.csproj" />
+    <ProjectReference Include="..\PUi\PUi.csproj" />
+    <ProjectReference Include="..\PUi.Demo\PUi.Demo.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,22 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <!--
+    The ONE place where the P! version lives. Everything else derives from it:
+      - the assembly versions of every project (Version) and so PUi.Screens.AppInfo.Version (read from the PUi assembly);
+      - the Android versionName / versionCode (PAndroid.csproj);
+      - tizen-manifest.xml cannot read MSBuild properties: PTizen fails the build if its version differs (Directory.Build.targets)
+        and PUi.Tests checks it too. To release, change AppVersion here and version="..." in src/PTizen/tizen-manifest.xml.
+  -->
+  <PropertyGroup>
+    <AppVersion>0.3.0</AppVersion>
+    <Version>$(AppVersion)</Version>
+    <!-- Android versionCode: major*10000 + minor*100 + patch (0.3.0 -> 300). It only ever grows with the version. -->
+    <AppVersionCode>$([MSBuild]::Add($([MSBuild]::Add($([MSBuild]::Multiply($([System.Version]::Parse('$(AppVersion)').Major), 10000)), $([MSBuild]::Multiply($([System.Version]::Parse('$(AppVersion)').Minor), 100)))), $([System.Version]::Parse('$(AppVersion)').Build)))</AppVersionCode>
+  </PropertyGroup>
+</Project>

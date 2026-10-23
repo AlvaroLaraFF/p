@@ -1,0 +1,9 @@
+<Project>
+  <!-- A project that ships a tizen-manifest.xml (PTizen) must declare the same version as Directory.Build.props: the manifest is plain XML and cannot read it. -->
+  <Target Name="CheckTizenManifestVersion" BeforeTargets="CoreCompile" Condition="Exists('$(MSBuildProjectDirectory)/tizen-manifest.xml')">
+    <XmlPeek XmlInputPath="$(MSBuildProjectDirectory)/tizen-manifest.xml" Query="/t:manifest/@version" Namespaces="&lt;Namespace Prefix='t' Uri='http://tizen.org/ns/packages' /&gt;">
+      <Output TaskParameter="Result" PropertyName="TizenManifestVersion" />
+    </XmlPeek>
+    <Error Condition="'$(TizenManifestVersion)' != '$(AppVersion)'" Text="tizen-manifest.xml has version '$(TizenManifestVersion)' but AppVersion in Directory.Build.props is '$(AppVersion)': keep them equal." />
+  </Target>
+</Project>
