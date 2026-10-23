@@ -62,4 +62,18 @@
     <AndroidAsset Remove="Assets\config.json" />
     <AndroidAsset Include="$(PAndroidConfig)" Link="Assets\config.json" />
   </ItemGroup>
+  <!-- The asset copy compares dates only: switching to an older source file (or back to the repository's) would keep the previous config.json. The source used last is
+       remembered, and when it changes the intermediate copy is deleted so that the new one is packaged. -->
+  <Target Name="_PRefreshPackagedConfig" BeforeTargets="_GenerateAndroidAssetsDir">
+    <PropertyGroup>
+      <_PConfigSource Condition="'$(PAndroidConfig)' != ''">$(PAndroidConfig)</_PConfigSource>
+      <_PConfigSource Condition="'$(PAndroidConfig)' == ''">$(MSBuildProjectDirectory)/Assets/config.json</_PConfigSource>
+      <_PConfigMarker>$(IntermediateOutputPath)p-packaged-config.txt</_PConfigMarker>
+    </PropertyGroup>
+    <ReadLinesFromFile File="$(_PConfigMarker)" Condition="Exists('$(_PConfigMarker)')">
+      <Output TaskParameter="Lines" PropertyName="_PConfigBefore" />
+    </ReadLinesFromFile>
+    <Delete Files="$(IntermediateOutputPath)assets/config.json" Condition="'$(_PConfigBefore)' != '$(_PConfigSource)'" />
+    <WriteLinesToFile File="$(_PConfigMarker)" Lines="$(_PConfigSource)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
 </Project>
