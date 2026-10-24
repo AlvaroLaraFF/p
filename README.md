@@ -4,7 +4,7 @@ P! is an app for watching Ace Stream channels and videos on a Samsung Smart TV (
 
 All platforms share the same engine and interface. Android is one apk for all its devices: what differs between a TV, a Fire TV stick, a phone and a tablet comes from a device profile detected at startup, and the interface has its own phone and tablet layouts (see "Phones and tablets").
 
-> Personal project, not affiliated with Ace Stream or Samsung. Keep any shared copy of this repository **private**: the engine embeds keys extracted from the official Ace Stream app.
+> Personal project, not affiliated with Ace Stream or Samsung. The engine embeds keys extracted from the official Ace Stream app.
 
 ## Projects
 
@@ -198,14 +198,14 @@ Look at *Settings > My Fire TV > About* for the model. Amazon documents **every 
 **2a. With the Downloader app, from a URL.**
 
 1. Install **Downloader** (AFTVnews, free) from the Appstore: search "Downloader" on the Fire TV. Open it once and allow file access when it asks.
-2. Make the apk available: `./deploy-android.sh --build-only --embed-config my-lists.json` builds it, checks it and writes `dist/P-<version>-universal-my-lists.apk` (add `--abi armeabi-v7a` for the small Fire TV-only one). An apk installed from a URL gets no pushed configuration, so `--embed-config` packages the file (`{"lists": [...]}`, kept out of the repository) as the apk's own `assets/config.json`; without it the app starts with "No hay listas configuradas". This repository and the apk contain keys of the official Ace Stream app: **do not put it where anybody can read it**. The private GitHub repository keeps the latest apk alone on the branch `apk` (one commit, replaced with each version, so the history of the code never carries binaries):
+2. Make the apk available: `./deploy-android.sh --build-only --embed-config my-lists.json` builds it, checks it and writes `dist/P-<version>-universal-my-lists.apk` (add `--abi armeabi-v7a` for the small Fire TV-only one). An apk installed from a URL gets no pushed configuration, so `--embed-config` packages the file (`{"lists": [...]}`, kept out of the repository) as the apk's own `assets/config.json`; without it the app starts with "No hay listas configuradas". Such an apk carries your lists: **share it by an unlisted link, never from a public page or repository**. A secret GitHub gist does it: it is not listed or searchable, and its raw URL downloads without signing in (a gist takes binaries by `git push`, not from the web page):
 
    ```
-   t=$(mktemp -d) && cp dist/P-0.3.0-universal-my-lists.apk "$t/" && git -C "$t" init -q -b apk && git -C "$t" add -A \
-     && git -C "$t" commit -qm "P! 0.3.0 apk" && git -C "$t" push -f git@github.com:<owner>/p.git apk
+   gh gist create README.md --desc "P!"      # secret unless --public; prints https://gist.github.com/<owner>/<id>
+   git clone https://gist.github.com/<id>.git g && cp dist/P-0.3.0-universal-my-lists.apk g/ && git -C g add -A && git -C g commit -qm "P! 0.3.0 apk" && git -C g push
    ```
 
-3. In Downloader, open *Browser* (menu on the left), go to `github.com` and sign in (once; the browser keeps the session). Then open `https://github.com/<owner>/p/raw/apk/P-0.3.0-universal-my-lists.apk`: the download starts and, when it ends, select *Install* (Down and Right to reach it), then *Done* (not *Open*) and delete the apk when it offers. The URL field of Downloader's home screen does not carry the browser's session: it gets "not found" for a private repository.
+3. In Downloader, type the raw URL in the field of its home screen: `https://gist.githubusercontent.com/<owner>/<id>/raw/P-0.3.0-universal-my-lists.apk` (long to type with the remote: a URL shortener helps). The download starts and, when it ends, select *Install* (Down and Right to reach it), then *Done* (not *Open*) and delete the apk when it offers.
 4. To find it: hold *Home*, choose *Apps* (it is also under *Settings > Applications > Manage Installed Applications > P! > Launch application*).
 
 **2b. With adb from a PC** (the PC and the Fire TV on the same network; the PC needs the Android *platform-tools*):
