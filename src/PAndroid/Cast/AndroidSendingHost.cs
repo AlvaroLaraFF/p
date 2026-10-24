@@ -28,7 +28,9 @@ namespace PAndroid
                 i.PutExtra(CastNotificationText.ExtraDevice, deviceName ?? "");
                 i.PutExtra(CastNotificationText.ExtraChannel, channelName ?? "");
                 i.PutExtra(CastNotificationText.ExtraPaused, false);
-                if (ForegroundServicePolicy.NeedsStartForegroundService((int)Build.VERSION.SdkInt)) _app.StartForegroundService(i); else _app.StartService(i);
+                CastSendingService.StartGate.Starting(SystemClock.ElapsedRealtime());
+                try { if (ForegroundServicePolicy.NeedsStartForegroundService((int)Build.VERSION.SdkInt)) _app.StartForegroundService(i); else _app.StartService(i); }
+                catch (Exception) { CastSendingService.StartGate.StartFailed(); throw; }
                 _running = true;
             }
             catch (Exception ex) { UdpLog.Warn("cast", "starting the foreground service: " + ex.GetType().Name + ": " + ex.Message); }
@@ -46,6 +48,8 @@ namespace PAndroid
         {
             if (!_running) return;
             _running = false;
+            // stopped before it called startForeground, Android would end the whole app: the service then stops itself once in the foreground
+            if (!CastSendingService.StartGate.RequestStop(SystemClock.ElapsedRealtime())) { UdpLog.Info("cast", "the sending ended while the foreground service was starting: it stops itself once started"); return; }
             try { _app.StopService(new Intent(_app, typeof(CastSendingService))); }
             catch (Exception ex) { UdpLog.Warn("cast", "stopping the foreground service: " + ex.Message); }
         }

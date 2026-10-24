@@ -21,6 +21,9 @@ namespace PAndroid
         /// <summary>The user pressed "Dejar de enviar" in the notification: the cast controller stops the sending (and with it this service).</summary>
         public static event Action StopRequested;
 
+        /// <summary>Between the host (startForegroundService, stopService) and onStartCommand: see <see cref="ForegroundStartGate"/>.</summary>
+        internal static readonly ForegroundStartGate StartGate = new ForegroundStartGate();
+
         private PowerManager.WakeLock _wake;
         private WifiManager.WifiLock _wifi;
 
@@ -40,9 +43,20 @@ namespace PAndroid
                 string device = intent != null ? intent.GetStringExtra(CastNotificationText.ExtraDevice) : null;
                 string channel = intent != null ? intent.GetStringExtra(CastNotificationText.ExtraChannel) : null;
                 bool paused = intent != null && intent.GetBooleanExtra(CastNotificationText.ExtraPaused, false);
-                var n = CastNotifications.Create(this, device, channel, paused);
-                if (Build.VERSION.SdkInt >= BuildVersionCodes.Q) StartForeground(CastNotificationText.NotificationId, n, (ForegroundService)ForegroundServicePolicy.TypeFor((int)Build.VERSION.SdkInt));
-                else StartForeground(CastNotificationText.NotificationId, n);
+                bool stopNow = false;
+                try
+                {
+                    var n = CastNotifications.Create(this, device, channel, paused);
+                    if (Build.VERSION.SdkInt >= BuildVersionCodes.Q) StartForeground(CastNotificationText.NotificationId, n, (ForegroundService)ForegroundServicePolicy.TypeFor((int)Build.VERSION.SdkInt));
+                    else StartForeground(CastNotificationText.NotificationId, n);
+                }
+                finally
+                {
+                    // the sending ended before this ran (a send that failed at once): only now, after startForeground, can the service be stopped
+                    stopNow = StartGate.Started();
+                    if (stopNow) { UdpLog.Info("cast", "the sending ended while the foreground service was starting: stopping it"); StopForegroundCompat(); StopSelf(startId); }
+                }
+                if (stopNow) return StartCommandResult.NotSticky;
                 AcquireLocks();
                 UdpLog.Info("cast", "foreground service started (" + CastNotificationText.Title(device) + ")");
             }

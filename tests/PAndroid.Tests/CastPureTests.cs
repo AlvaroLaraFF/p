@@ -157,5 +157,66 @@ namespace PAndroid.Tests
             Assert.False(ForegroundServicePolicy.NeedsNotificationChannel(25));
             Assert.True(ForegroundServicePolicy.NeedsNotificationChannel(26));
         }
+
+        [Fact]
+        public void ASendingThatFailsAtOnceDoesNotStopTheServiceBeforeItIsInTheForeground()
+        {
+            // what closed the app on Android 16: Begin, the send fails 11 ms later, End, and only then onStartCommand
+            var g = new ForegroundStartGate();
+            g.Starting(1000);
+            Assert.False(g.RequestStop(1011));
+            Assert.True(g.Started());                                    // the service stops itself, after startForeground
+        }
+
+        [Fact]
+        public void TheServiceStaysWhenNoStopCameInWhileItWasStarting()
+        {
+            var g = new ForegroundStartGate();
+            g.Starting(1000);
+            Assert.False(g.Started());
+            Assert.True(g.RequestStop(60000));                           // the sending ends normally: stopped at once
+        }
+
+        [Fact]
+        public void ANewSendingCancelsADeferredStop()
+        {
+            var g = new ForegroundStartGate();
+            g.Starting(1000);
+            Assert.False(g.RequestStop(1010));
+            g.Starting(1020);                                            // another channel before onStartCommand ran
+            Assert.False(g.Started());                                   // first start: one more on its way
+            Assert.False(g.Started());                                   // second start: the new sending goes on
+            Assert.True(g.RequestStop(90000));
+        }
+
+        [Fact]
+        public void AStopWaitsForEveryStartOnItsWay()
+        {
+            var g = new ForegroundStartGate();
+            g.Starting(1000);
+            g.Starting(1005);
+            Assert.False(g.RequestStop(1010));
+            Assert.False(g.Started());
+            Assert.True(g.Started());
+        }
+
+        [Fact]
+        public void AStartThatNeverArrivedDoesNotHoldTheStopBackForEver()
+        {
+            var g = new ForegroundStartGate();
+            g.Starting(1000);
+            Assert.False(g.RequestStop(1000 + ForegroundStartGate.MaxWaitMs - 1));
+            Assert.True(g.RequestStop(1000 + ForegroundStartGate.MaxWaitMs));
+            Assert.False(g.Started());                                   // a late onStartCommand after that does not stop a later sending
+        }
+
+        [Fact]
+        public void AStartThatThrewIsNotWaitedFor()
+        {
+            var g = new ForegroundStartGate();
+            g.Starting(1000);
+            g.StartFailed();
+            Assert.True(g.RequestStop(1001));
+        }
     }
 }

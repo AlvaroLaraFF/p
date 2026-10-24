@@ -137,4 +137,50 @@ namespace PAndroid
         /// <summary>The notification channel exists from Android 8; before, the notification has a priority of its own.</summary>
         public static bool NeedsNotificationChannel(int sdkInt) { return sdkInt >= 26; }
     }
+
+    /// <summary>
+    /// A service started with startForegroundService must call startForeground before it is stopped: stopping it earlier makes Android end the whole app
+    /// (ForegroundServiceDidNotStartInTimeException), and a send that fails at once does exactly that, since onStartCommand runs later on the main thread. The host asks this gate before
+    /// stopping the service: while a start is on its way the stop is deferred, and the service, once in the foreground, stops itself. A start that never reached onStartCommand (the process
+    /// lives on, the service did not) does not hold a stop back for ever: after <see cref="MaxWaitMs"/> the stop goes ahead.
+    /// </summary>
+    public sealed class ForegroundStartGate
+    {
+        /// <summary>Longer than the time Android gives a service to call startForeground (5 to 10 s).</summary>
+        public const long MaxWaitMs = 15000;
+
+        private readonly object _lock = new object();
+        private int _pending;          // starts asked for whose onStartCommand has not run yet
+        private long _lastStartMs;
+        private bool _stopAfterStart;
+
+        /// <summary>The host is about to call startForegroundService (a new sending: a stop asked for before it no longer applies).</summary>
+        public void Starting(long nowMs) { lock (_lock) { _pending++; _lastStartMs = nowMs; _stopAfterStart = false; } }
+
+        /// <summary>startForegroundService threw: nothing is on its way for that start.</summary>
+        public void StartFailed() { lock (_lock) { if (_pending > 0) _pending--; } }
+
+        /// <summary>The host wants the service stopped. true = stop it now; false = a start is on its way, the service stops itself once it is in the foreground.</summary>
+        public bool RequestStop(long nowMs)
+        {
+            lock (_lock)
+            {
+                if (_pending > 0 && nowMs - _lastStartMs < MaxWaitMs) { _stopAfterStart = true; return false; }
+                _pending = 0; _stopAfterStart = false;
+                return true;
+            }
+        }
+
+        /// <summary>The service has called startForeground (or tried to) for one start. true = the sending ended meanwhile: the service stops itself now.</summary>
+        public bool Started()
+        {
+            lock (_lock)
+            {
+                if (_pending > 0) _pending--;
+                if (_pending > 0 || !_stopAfterStart) return false;
+                _stopAfterStart = false;
+                return true;
+            }
+        }
+    }
 }
