@@ -258,6 +258,37 @@ namespace PUi.Tests
         }
 
         [Fact]
+        public void TheSendWaitsForTheLocalSessionToCloseEvenWhenTheFrameStoppedThePlaybackFirst()
+        {
+            // phone log 2026-10-24: the frame entered the sending state before the send asked to release the playback; the send then found nothing to wait for and opened the channel
+            // for the TV while the engine was still closing the local session ("ya hay una sesion de directo abierta"): the sending failed at once
+            FakeCast cast;
+            var r = PlayerWithCast(Device.Phone, out cast);
+            var pb = r.Playback.Created.Last();
+            var closed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            pb.CloseGate = closed.Task;
+            cast.ReleaseGate = release.Task;
+            Ui(r).Send(cast.Devices[0], Screen(r).Context.Current);
+            r.Advance(r.Now + 0.2);
+            Assert.True(Screen(r).CastMode);                                                 // the frame came first: the playback is stopped, its session still closing
+            Assert.Contains("stop", pb.Calls);
+            release.TrySetResult(true);                                                      // now the send asks to release the playback
+            Thread.Sleep(50);
+            r.Advance(r.Now + 0.2);
+            Thread.Sleep(50);
+            r.Advance(r.Now + 0.2);
+            Assert.Equal(0, cast.ReleasedLocal);                                             // still waiting for the session
+            Assert.NotEqual(CastPhase.Starting, cast.Status.Phase);
+            closed.TrySetResult(true);
+            WaitUntil(() => cast.ReleasedLocal == 1, "the release once the session closed");
+            WaitUntil(() => cast.Status.Phase == CastPhase.Sending, "the sending");
+            r.Advance(r.Now + 0.3);
+            Assert.True(Screen(r).CastMode);
+            Assert.Single(r.Playback.Created);
+        }
+
+        [Fact]
         public void WhileItConnectsThePlayerSaysSoAndOnlyOffersToCancel()
         {
             FakeCast cast;

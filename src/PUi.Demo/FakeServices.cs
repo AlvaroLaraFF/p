@@ -158,6 +158,8 @@ namespace PUi.Demo
         public void Push(Action<PlaybackStatus> change) { lock (_pushGate) { var s = Current.Clone(); change(s); Current = s; var h = Changed; if (h != null) h(s.Clone()); } }
         /// <summary>States that are given after starting (milliseconds since the start): for the demo mode and the timed tests.</summary>
         public readonly List<KeyValuePair<int, Action<PlaybackStatus>>> Script = new List<KeyValuePair<int, Action<PlaybackStatus>>>();
+        /// <summary>When set, a cancelled run does not end until the test completes this task: the engine is still closing the channel's session.</summary>
+        public Task CloseGate;
 
         public async Task RunAsync(LinkEntry entry, string name, CancellationToken ct)
         {
@@ -175,6 +177,8 @@ namespace PUi.Demo
                 await Task.Delay(Timeout.Infinite, ct).ConfigureAwait(false);
             }
             catch (OperationCanceledException) { }
+            var close = CloseGate;
+            if (close != null) await close.ConfigureAwait(false);
         }
         public void Stop() { Record("stop"); }
         public void TogglePause() { Record("toggle"); Push(s => s.Phase = s.Phase == PlayPhase.Paused ? PlayPhase.Playing : PlayPhase.Paused); }

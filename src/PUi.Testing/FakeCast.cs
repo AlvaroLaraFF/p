@@ -50,6 +50,8 @@ namespace PUi.Testing
         public string SendFailure = "No se ha podido enviar el canal.";
         /// <summary>When set, a send stays in "Starting" until the test completes this task.</summary>
         public Task StartGate;
+        /// <summary>When set, a send does not release the local playback until the test completes this task (the interface's frame gets there first).</summary>
+        public Task ReleaseGate;
 
         // ---------------------------------------------------------------- what the interface did
         public int BeginSearchCalls, EndSearchCalls, StopCalls;
@@ -78,6 +80,8 @@ namespace PUi.Testing
         public async Task<bool> SendAsync(CastDevice device, Channel channel, Func<Task> releaseLocal, CancellationToken ct)
         {
             lock (_gate) SendCalls.Add(new KeyValuePair<CastDevice, Channel>(device, channel));
+            var release = ReleaseGate;
+            if (release != null) await release.ConfigureAwait(false);
             if (releaseLocal != null) { await releaseLocal().ConfigureAwait(false); ReleasedLocal++; }
             SetStatus(new CastStatus { Phase = CastPhase.Starting, Device = device, Channel = channel });
             var gate = StartGate;

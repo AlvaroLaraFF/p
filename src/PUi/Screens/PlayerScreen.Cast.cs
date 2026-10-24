@@ -24,6 +24,7 @@ namespace PUi.Screens
     {
         private bool _castMode;
         private Task _runTask;
+        private Task _castRelease;           // the run of the playback that entering the sending state stopped: it ends when the engine has released the channel's session
         private readonly CastVolumeSlider _vol = new CastVolumeSlider();
         private bool _volDrag;
 
@@ -61,7 +62,12 @@ namespace PUi.Screens
         /// <summary>The playback is stopped and the screen shows the sending state. Returns the task of the playback that was running (it ends when its engine session is released), or null if there was none.</summary>
         private Task EnterCastMode()
         {
-            var run = _pb != null ? _runTask : null;
+            // the frame (UpdateCast, as soon as the send is in flight) or the send itself (ReleaseForCastAsync) can get here first: the second one waits for the same run. Phone log
+            // (2026-10-24): the frame came first, the send found nothing to wait for and opened the channel for the TV while the local session was still closing ("ya hay una sesion de directo
+            // abierta"), and the sending failed at once.
+            if (_castMode && _pb == null) return _castRelease;
+            _castRelease = _pb != null ? _runTask : null;
+            var run = _castRelease;
             _castMode = true;
             _ctl.Reset(); _panel.Snap(1); _panelShown = true; _drewEmpty = false; _drewStatic = false; _veil.Snap(0); _scrim.Snap(0);
             _volDrag = false; _vol.Abort();
@@ -77,7 +83,7 @@ namespace PUi.Screens
         {
             if (_ctx == null || !_ctx.Cast.IsAvailable)
             {
-                if (_castMode) { _castMode = false; if (!_dead && _pc.Current != null) StartChannel(); }
+                if (_castMode) { _castMode = false; _castRelease = null; if (!_dead && _pc.Current != null) StartChannel(); }
                 return;
             }
             var cu = _ctx.CastUi;
@@ -87,7 +93,7 @@ namespace PUi.Screens
             else if (!casting && _castMode)
             {
                 // the sending ended (the user stopped it, the device did, the channel went down, it could not start): this is a player again
-                _castMode = false; _volDrag = false; _vol.Abort();
+                _castMode = false; _castRelease = null; _volDrag = false; _vol.Abort();
                 AceLog.Info("ui", "player: the sending ended, playing here again");
                 if (!_dead && _pc.Current != null) { SetKeepScreenOn(true); StartChannel(); }
             }
